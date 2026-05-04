@@ -50,7 +50,7 @@ export default function Landing() {
             <span className="font-bold text-lg">Mind<span className="text-[#c2703e]">Vault</span> Radar</span>
           </div>
           <div className="ml-auto flex items-center gap-4">
-            <a href="https://scan.mindvaultstudio.net" className="flex items-center gap-1.5 text-sm text-white/50 hover:text-[#c2703e] transition-colors">
+            <a href="https://scan.mindvaultstudio.net" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-white/50 hover:text-[#c2703e] transition-colors">
               <Search className="w-4 h-4" />
               SEO Scan
             </a>
@@ -145,7 +145,7 @@ export default function Landing() {
         </form>
 
         {/* Cross-promo: Try SEO Scan */}
-        <a href="https://scan.mindvaultstudio.net" className="mt-10 flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl px-6 py-5 hover:border-[#c2703e]/40 transition-colors group">
+        <a href="https://scan.mindvaultstudio.net" target="_blank" rel="noopener noreferrer" className="mt-10 flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl px-6 py-5 hover:border-[#c2703e]/40 transition-colors group">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-[#c2703e]/20 flex items-center justify-center">
               <Search className="w-6 h-6 text-[#c2703e]" />

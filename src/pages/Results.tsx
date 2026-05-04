@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Radar, CheckCircle2, AlertTriangle, XCircle, ArrowRight, Mail, ChevronDown, ChevronUp } from 'lucide-react'
+import { Radar, CheckCircle2, AlertTriangle, XCircle, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react'
 import { type AuditResult, type AuditCheck } from '../types'
 import { scoreColor, scoreLabel, scoreSummary } from '../lib/audit'
 
@@ -28,8 +28,8 @@ const PRIORITY_BG = {
 export default function Results() {
   const navigate = useNavigate()
   const [result, setResult] = useState<AuditResult | null>(null)
-  const [email, setEmail] = useState('')
-  const [emailSent, setEmailSent] = useState(false)
+  const [unlocked, setUnlocked] = useState(false)
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', business_name: '' })
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['A', 'C']))
 
   useEffect(() => {
@@ -51,9 +51,9 @@ export default function Results() {
     })
   }
 
-  const handleEmail = async (e: React.FormEvent) => {
+  const handleUnlock = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email || !result) return
+    if (!formData.email || !result) return
     try {
       const { supabase } = await import('../lib/supabase')
       await supabase.from('geo_leads').insert({
@@ -61,12 +61,15 @@ export default function Results() {
         trade: result.trade,
         city: result.city,
         state: result.state,
-        email,
+        email: formData.email,
+        name: formData.name,
+        phone: formData.phone,
+        business_name: formData.business_name,
         score: result.score,
         result_json: result,
       })
-    } catch { /* still mark as sent even if save fails */ }
-    setEmailSent(true)
+    } catch { /* still unlock even if save fails */ }
+    setUnlocked(true)
   }
 
   if (!result) return null
@@ -91,7 +94,7 @@ export default function Results() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-8">
-        {/* Score Hero */}
+        {/* Score Hero - ALWAYS visible */}
         <div className="text-center mb-10">
           <div className="relative w-40 h-40 mx-auto mb-4">
             <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
@@ -117,109 +120,121 @@ export default function Results() {
           </p>
         </div>
 
-        {/* Two columns: checks + actions */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Checks - 2 cols wide */}
-          <div className="lg:col-span-2 space-y-3">
-            {(Object.entries(sections) as [string, AuditCheck[]][]).map(([key, checks]) => (
-              <div key={key} className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
-                <button
-                  onClick={() => toggleSection(key)}
-                  className="w-full flex items-center justify-between px-5 py-4 hover:bg-white/5 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-bold text-[#c2703e]">{key}</span>
-                    <span className="font-medium">{SECTION_LABELS[key]}</span>
-                    <span className="text-xs text-white/40">
-                      {checks.filter(c => c.status === 'pass').length}/{checks.length} passed
-                    </span>
-                  </div>
-                  {expandedSections.has(key) ? (
-                    <ChevronUp className="w-5 h-5 text-white/40" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5 text-white/40" />
-                  )}
-                </button>
-                {expandedSections.has(key) && (
-                  <div className="border-t border-white/10 px-5 py-3 space-y-2">
-                    {checks.map(check => (
-                      <div key={check.id} className="flex items-start gap-3 py-2">
-                        {STATUS_ICON[check.status]}
-                        <div>
-                          <span className="text-sm font-medium">{check.label}</span>
-                          <p className="text-xs text-white/50 mt-0.5">{check.detail}</p>
-                        </div>
+        {/* Two columns: checks + actions - BLURRED when locked */}
+        <div className={unlocked ? '' : 'relative'}>
+          <div className={unlocked ? '' : 'filter blur-md pointer-events-none select-none'}>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+              {/* Checks - 2 cols wide */}
+              <div className="lg:col-span-2 space-y-3">
+                {(Object.entries(sections) as [string, AuditCheck[]][]).map(([key, checks]) => (
+                  <div key={key} className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => toggleSection(key)}
+                      className="w-full flex items-center justify-between px-5 py-4 hover:bg-white/5 transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-bold text-[#c2703e]">{key}</span>
+                        <span className="font-medium">{SECTION_LABELS[key]}</span>
+                        <span className="text-xs text-white/40">
+                          {checks.filter(c => c.status === 'pass').length}/{checks.length} passed
+                        </span>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* Actions sidebar */}
-          <div className="space-y-4">
-            <div className="bg-white/5 border border-white/10 rounded-xl p-5">
-              <h2 className="font-bold mb-4 font-serif">Priority Actions</h2>
-              <div className="space-y-3">
-                {actions.slice(0, 5).map((action, i) => (
-                  <div key={i} className="flex items-start gap-2">
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded ${PRIORITY_BG[action.priority]}`}>
-                      {action.priority}
-                    </span>
-                    <p className="text-sm text-white/70">{action.action}</p>
+                      {expandedSections.has(key) ? (
+                        <ChevronUp className="w-5 h-5 text-white/40" />
+                      ) : (
+                        <ChevronDown className="w-5 h-5 text-white/40" />
+                      )}
+                    </button>
+                    {expandedSections.has(key) && (
+                      <div className="border-t border-white/10 px-5 py-3 space-y-2">
+                        {checks.map(check => (
+                          <div key={check.id} className="flex items-start gap-3 py-2">
+                            {STATUS_ICON[check.status]}
+                            <div>
+                              <span className="text-sm font-medium">{check.label}</span>
+                              <p className="text-xs text-white/50 mt-0.5">{check.detail}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
-            </div>
 
-            {/* CTA */}
-            <div className="bg-[#c2703e]/20 border border-[#c2703e]/30 rounded-xl p-5 text-center">
-              <h3 className="font-bold mb-2 font-serif">Want us to fix this?</h3>
-              <p className="text-sm text-white/60 mb-4">
-                Mind<span className="text-[#c2703e]">Vault</span> handles your entire AI presence. From schema to content to monitoring.
-              </p>
-              <a
-                href="https://mindvaultstudio.net"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-[#c2703e] hover:bg-[#a85a2a] text-white font-semibold px-5 py-2.5 rounded-xl transition-colors"
-              >
-                Book a Free Call
-                <ArrowRight className="w-4 h-4" />
-              </a>
-            </div>
+              {/* Actions sidebar */}
+              <div className="space-y-4">
+                <div className="bg-white/5 border border-white/10 rounded-xl p-5">
+                  <h2 className="font-bold mb-4 font-serif">Priority Actions</h2>
+                  <div className="space-y-3">
+                    {actions.slice(0, 5).map((action, i) => (
+                      <div key={i} className="flex items-start gap-2">
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded ${PRIORITY_BG[action.priority]}`}>
+                          {action.priority}
+                        </span>
+                        <p className="text-sm text-white/70">{action.action}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
-            {/* Email gate */}
-            {!emailSent ? (
-              <div className="bg-white/5 border border-white/10 rounded-xl p-5">
-                <h3 className="font-bold mb-2 text-sm font-serif">Get this report in your inbox</h3>
-                <form onSubmit={handleEmail} className="space-y-2">
-                  <input
-                    type="email"
-                    placeholder="your@email.com"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#c2703e]"
-                    required
-                  />
-                  <button
-                    type="submit"
-                    className="w-full bg-white/10 hover:bg-white/20 text-white text-sm font-medium py-2 rounded-lg flex items-center justify-center gap-1 transition-colors"
+                {/* CTA - sales closer */}
+                <div className="bg-[#c2703e]/20 border border-[#c2703e]/30 rounded-xl p-5 text-center">
+                  <h3 className="font-bold mb-2 font-serif">Want us to fix this?</h3>
+                  <p className="text-sm text-white/60 mb-4">
+                    Mind<span className="text-[#c2703e]">Vault</span> handles your entire AI presence. From schema to content to monitoring.
+                  </p>
+                  <a
+                    href="https://mindvaultstudio.net"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-[#c2703e] hover:bg-[#a85a2a] text-white font-semibold px-5 py-2.5 rounded-xl transition-colors"
                   >
-                    <Mail className="w-4 h-4" />
-                    Send Report
+                    Book a Free Call
+                    <ArrowRight className="w-4 h-4" />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Lead capture overlay - shown when NOT unlocked */}
+          {!unlocked && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+              <div className="bg-[#1c1c1c] border border-white/10 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+                <div className="text-center mb-6">
+                  <h2 className="text-xl font-bold font-serif mb-2">Unlock Your Full GEO Audit</h2>
+                  <p className="text-sm text-white/60">
+                    {domain} scored <span style={{ color: scoreColor(score) }} className="font-bold">{score}/100</span>.
+                    See exactly what's holding your AI visibility back.
+                  </p>
+                </div>
+                <form onSubmit={handleUnlock} className="space-y-3">
+                  <input type="text" placeholder="Your Name" value={formData.name}
+                    onChange={e => setFormData(p => ({...p, name: e.target.value}))}
+                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#c2703e]"
+                    required />
+                  <input type="email" placeholder="Work Email" value={formData.email}
+                    onChange={e => setFormData(p => ({...p, email: e.target.value}))}
+                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#c2703e]"
+                    required />
+                  <input type="tel" placeholder="Phone Number" value={formData.phone}
+                    onChange={e => setFormData(p => ({...p, phone: e.target.value}))}
+                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#c2703e]"
+                    required />
+                  <input type="text" placeholder="Business Name" value={formData.business_name}
+                    onChange={e => setFormData(p => ({...p, business_name: e.target.value}))}
+                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#c2703e]"
+                    required />
+                  <button type="submit"
+                    className="w-full bg-[#c2703e] hover:bg-[#a85a2a] text-white font-bold py-3 rounded-lg transition-colors text-lg">
+                    Get My Free Report
                   </button>
+                  <p className="text-xs text-white/30 text-center">No spam. We'll send your detailed report and follow up within 24 hours.</p>
                 </form>
               </div>
-            ) : (
-              <div className="bg-[#22C55E]/20 border border-[#22C55E]/30 rounded-xl p-5 text-center">
-                <CheckCircle2 className="w-8 h-8 text-[#22C55E] mx-auto mb-2" />
-                <p className="text-sm font-medium">Report sent to {email}</p>
-                <p className="text-xs text-white/50 mt-1">Check your inbox in a few minutes</p>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </main>
 

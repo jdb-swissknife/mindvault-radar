@@ -3,6 +3,8 @@ export interface AuditCheck {
   label: string
   status: 'pass' | 'warn' | 'fail'
   detail: string
+  impact_note: string
+  solution_hint: string
 }
 
 export interface AuditAction {

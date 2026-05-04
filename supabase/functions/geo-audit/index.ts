@@ -17,6 +17,8 @@ interface Check {
   label: string
   status: 'pass' | 'warn' | 'fail'
   detail: string
+  impact_note: string
+  solution_hint: string
 }
 
 interface Action {
@@ -65,6 +67,8 @@ async function checkIndex(domain: string): Promise<Check[]> {
       : googleCount > 0
         ? `Only ${googleCount} pages found. Most sites need 10+ pages for AI visibility.`
         : 'No pages found in Google index. Your site may not be indexed at all.',
+    impact_note: googleCount > 5 ? '' : "If Google hasn't indexed your pages, AI tools like ChatGPT and Perplexity can't find you either. They pull from Google's index.",
+    solution_hint: googleCount > 5 ? '' : 'This requires technical SEO fixes to get your pages discovered and indexed by search engines.',
   })
 
   // A2: Bing index (proxied via Serper)
@@ -77,6 +81,8 @@ async function checkIndex(domain: string): Promise<Check[]> {
     detail: bingCount > 5
       ? `${bingCount} pages found. Bing powers ChatGPT and Perplexity.`
       : `Only ${bingCount} pages in Bing. ChatGPT and Perplexity use Bing's index to find sources.`,
+    impact_note: bingCount > 5 ? '' : "ChatGPT and Perplexity use Bing's index to find sources. If you're not in Bing, you're invisible to the most popular AI tools.",
+    solution_hint: bingCount > 5 ? '' : 'This involves submitting your site to Bing and ensuring proper crawl access.',
   })
 
   // A3: Sitemap
@@ -88,6 +94,8 @@ async function checkIndex(domain: string): Promise<Check[]> {
     detail: sitemap
       ? 'Sitemap found. AI crawlers use this to discover your pages.'
       : 'No sitemap found. Add /sitemap.xml to help AI engines discover all your pages.',
+    impact_note: sitemap ? '' : 'Without a sitemap, AI crawlers have to guess where your pages are. Many won\'t bother.',
+    solution_hint: sitemap ? '' : 'We generate and maintain a proper sitemap that tells every search engine and AI crawler exactly where to look.',
   })
 
   // A6: RSS feed
@@ -103,6 +111,8 @@ async function checkIndex(domain: string): Promise<Check[]> {
     detail: rssFound
       ? 'RSS feed found. AI engines use feeds for fresh content discovery.'
       : 'No RSS feed found. AI engines use RSS to discover new content quickly.',
+    impact_note: rssFound ? '' : 'RSS feeds signal fresh content to AI engines. Without one, new content takes longer to get picked up.',
+    solution_hint: rssFound ? '' : 'This involves adding an RSS feed that automatically notifies AI engines when you publish new content.',
   })
 
   return checks
@@ -138,6 +148,8 @@ async function checkSchema(domain: string, clientName: string): Promise<Check[]>
     detail: schemaTypes.length > 0
       ? `Found ${schemaTypes.length} schema types: ${schemaTypes.join(', ')}.`
       : 'No structured data found. AI models use schema to understand what your business does.',
+    impact_note: schemaTypes.length > 0 ? '' : 'Structured data is how AI engines understand what your business actually does. Without it, you\'re a blank page to AI.',
+    solution_hint: schemaTypes.length > 0 ? '' : 'This involves adding specific code markup (JSON-LD) that tells AI engines your business name, services, and location.',
   })
 
   // B2: Organization/LocalBusiness
@@ -149,6 +161,8 @@ async function checkSchema(domain: string, clientName: string): Promise<Check[]>
     detail: hasOrg
       ? 'Business schema found. AI engines use this to identify who you are.'
       : 'Missing Organization or LocalBusiness schema. This is critical for AI to recognize your business.',
+    impact_note: hasOrg ? '' : 'AI engines use LocalBusiness schema to identify who you are and what you offer. Missing this means lower AI visibility.',
+    solution_hint: hasOrg ? '' : 'This involves adding business-specific structured data with your name, address, services, and service area.',
   })
 
   // B3: FAQ schema
@@ -160,6 +174,8 @@ async function checkSchema(domain: string, clientName: string): Promise<Check[]>
     detail: hasFaq
       ? 'FAQ schema found. FAQ content is heavily cited by AI engines.'
       : 'No FAQ schema. Adding FAQ pages with structured data is one of the fastest ways to get AI citations.',
+    impact_note: hasFaq ? '' : 'FAQ pages are the #1 most cited content type by AI engines. Without one, you\'re missing the fastest path to AI visibility.',
+    solution_hint: hasFaq ? '' : 'This involves creating an FAQ page with structured markup that AI engines can directly extract and cite.',
   })
 
   // B6: Wikidata
@@ -179,6 +195,8 @@ async function checkSchema(domain: string, clientName: string): Promise<Check[]>
     detail: wikiFound
       ? 'Found on Wikidata. This feeds Google Knowledge Graph.'
       : 'Not found on Wikidata. Creating a Wikidata entry strengthens your entity signals across all AI engines.',
+    impact_note: wikiFound ? '' : 'Wikidata feeds Google\'s Knowledge Graph and many AI systems. Not having an entry weakens your entity signals.',
+    solution_hint: wikiFound ? '' : 'This involves creating and verifying a Wikidata entry that strengthens how AI systems recognize your business.',
   })
 
   return checks
@@ -221,6 +239,8 @@ async function checkAIVisibility(domain: string, trade: string, city: string, st
       : mentions > 0
         ? `Found in only ${mentions}/${queries.length} queries. You're partially visible but competitors dominate.`
         : `Not found in any of ${queries.length} test queries. AI engines won't find you for "${trade} ${city}".`,
+    impact_note: mentions >= 3 ? '' : 'When potential customers ask AI for recommendations in your area, your competitors show up instead of you.',
+    solution_hint: mentions >= 3 ? '' : 'This requires a combination of content, citations, and structured data that makes AI engines recognize you as a top result.',
   })
 
   if (details.length > 0) {
@@ -229,6 +249,8 @@ async function checkAIVisibility(domain: string, trade: string, city: string, st
       label: 'Where you appeared',
       status: 'pass',
       detail: details.join(' | '),
+      impact_note: '',
+      solution_hint: '',
     })
   }
 
@@ -246,6 +268,8 @@ async function checkAIVisibility(domain: string, trade: string, city: string, st
     detail: competitors.length > 0
       ? `Top results for "${queries[0]}": ${competitors.join(', ')}`
       : 'No competitors found in top results.',
+    impact_note: 'These are the businesses AI engines recommend when customers ask for your services. The more they appear, the less you do.',
+    solution_hint: 'We build a strategy to systematically outperform these competitors in AI search results.',
   })
 
   return checks
@@ -261,6 +285,8 @@ async function checkContent(domain: string, clientName: string): Promise<Check[]
       label: 'Could not fetch homepage',
       status: 'fail',
       detail: 'Unable to fetch your homepage for content analysis.',
+      impact_note: 'AI engines use your page headings to understand your content. Poor structure means they can\'t extract useful information.',
+      solution_hint: 'This involves restructuring your page with proper headings that AI engines can easily parse and cite.',
     })
     return checks
   }
@@ -283,6 +309,8 @@ async function checkContent(domain: string, clientName: string): Promise<Check[]
     detail: `Found ${h1s} H1, ${h2s} H2, ${h3s} H3 tags. ${
       h2s < 3 ? 'AI engines use headings to understand page structure. Add more H2 sections.' : 'Good structure for AI extraction.'
     }`,
+    impact_note: (h1s === 1 && h2s >= 3) ? '' : 'AI engines use your page headings to understand your content. Poor structure means they can\'t extract useful information.',
+    solution_hint: (h1s === 1 && h2s >= 3) ? '' : 'This involves restructuring your page with proper headings that AI engines can easily parse and cite.',
   })
 
   // D2: Brand in first 100 words
@@ -295,6 +323,8 @@ async function checkContent(domain: string, clientName: string): Promise<Check[]
     detail: brandInFirst
       ? 'Your brand is mentioned early on the page. AI engines extract from the top.'
       : 'Your brand name is not in the first 100 words. Move your business name to the opening sentence.',
+    impact_note: brandInFirst ? '' : 'AI engines extract from the top of your page first. If your brand isn\'t there, they may not associate the content with you.',
+    solution_hint: brandInFirst ? '' : 'This requires rewriting your opening content to prominently feature your business name and core service.',
   })
 
   // D5: Statistics
@@ -308,6 +338,8 @@ async function checkContent(domain: string, clientName: string): Promise<Check[]
     detail: hasStats
       ? `Found ${percentages} percentages and ${dollars} dollar amounts. AI engines prefer citing specific numbers.`
       : 'No specific data points found. Add statistics, prices, or percentages to increase citation likelihood.',
+    impact_note: hasStats ? '' : 'AI engines prefer citing specific numbers and data. Pages with stats get cited 30-40% more often according to recent research.',
+    solution_hint: hasStats ? '' : 'This involves adding specific pricing, statistics, and data points to your key pages that AI engines love to reference.',
   })
 
   // D6: Entity consistency
@@ -320,6 +352,8 @@ async function checkContent(domain: string, clientName: string): Promise<Check[]
     detail: `"${clientName}" used ${brandCount}x vs "we/our" used ${weCount}x. ${
       brandCount <= weCount ? 'Replace some "we/our" with your brand name. AI engines need consistent entity references.' : 'Good brand name usage.'
     }`,
+    impact_note: brandCount > weCount ? '' : 'AI engines need consistent brand name usage to recognize you as a distinct entity. Too much \'we\' and \'our\' dilutes your identity.',
+    solution_hint: brandCount > weCount ? '' : 'This involves a content pass to replace generic pronouns with your brand name throughout your site.',
   })
 
   // D8: Comparison content
@@ -331,6 +365,8 @@ async function checkContent(domain: string, clientName: string): Promise<Check[]
     detail: hasCompare
       ? 'Comparison content found. "X vs Y" format is heavily cited by AI engines.'
       : 'No comparison content. "X vs Y" pages are among the most cited by AI search engines.',
+    impact_note: hasCompare ? '' : '\'X vs Y\' comparison pages are among the most frequently cited by AI search engines. You\'re missing a high-value content type.',
+    solution_hint: hasCompare ? '' : 'This involves creating comparison content that AI engines frequently pull from when answering buyer questions.',
   })
 
   return checks
@@ -347,10 +383,19 @@ async function checkEcosystem(clientName: string, trade: string, city: string): 
     { id: 'E5', label: 'News coverage', query: `"${clientName}" ${trade} ${city}` },
   ]
 
+  const platformNames: Record<string, string> = {
+    'E1': 'Reddit',
+    'E2': 'Yelp',
+    'E3': 'LinkedIn',
+    'E4': 'YouTube',
+    'E5': 'News outlets',
+  }
+
   for (const check of ecosystemChecks) {
     const serp = await serperSearch(check.query)
     const found = serp.length > 0
     const topResult = found ? serp[0].title?.slice(0, 60) : ''
+    const platform = platformNames[check.id] || 'this platform'
     checks.push({
       id: check.id,
       label: check.label,
@@ -358,6 +403,8 @@ async function checkEcosystem(clientName: string, trade: string, city: string): 
       detail: found
         ? `Found: ${topResult}`
         : `Not found. Building presence here strengthens your AI citation signals.`,
+      impact_note: found ? '' : `Presence on ${platform} strengthens your AI citation signals. Businesses visible across multiple platforms get cited 3-5x more by AI.`,
+      solution_hint: found ? '' : 'This involves building and optimizing your presence on key platforms that AI engines use as trust signals.',
     })
   }
 
@@ -392,6 +439,8 @@ async function checkCrawlers(domain: string): Promise<Check[]> {
     detail: blocked.length > 0
       ? `BLOCKED: ${blocked.join(', ')}. These AI bots cannot access your site. Remove the Disallow rules in robots.txt.`
       : `All AI crawlers allowed: ${allowed.join(', ')}. Good.`,
+    impact_note: blocked.length === 0 ? '' : 'You are literally blocking AI tools from reading your website. ChatGPT, Perplexity, and others cannot access your content.',
+    solution_hint: blocked.length === 0 ? '' : 'This requires updating your robots.txt to explicitly allow AI crawlers while maintaining security.',
   })
 
   return checks

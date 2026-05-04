@@ -19,12 +19,6 @@ const STATUS_ICON = {
   fail: <XCircle className="w-5 h-5 text-red-400 shrink-0" />,
 }
 
-const PRIORITY_BG = {
-  CRITICAL: 'bg-red-500/20 text-red-300',
-  HIGH: 'bg-amber-500/20 text-amber-300',
-  MEDIUM: 'bg-white/10 text-white/70',
-}
-
 export default function Results() {
   const navigate = useNavigate()
   const [result, setResult] = useState<AuditResult | null>(null)
@@ -74,7 +68,7 @@ export default function Results() {
 
   if (!result) return null
 
-  const { domain, trade, city, state, score, sections, actions } = result
+  const { domain, trade, city, state, score, sections } = result
 
   return (
     <div className="min-h-screen bg-[#111111] text-white">
@@ -150,9 +144,19 @@ export default function Results() {
                         {checks.map(check => (
                           <div key={check.id} className="flex items-start gap-3 py-2">
                             {STATUS_ICON[check.status]}
-                            <div>
+                            <div className="flex-1 min-w-0">
                               <span className="text-sm font-medium">{check.label}</span>
                               <p className="text-xs text-white/50 mt-0.5">{check.detail}</p>
+                              {(check.status === 'warn' || check.status === 'fail') && check.impact_note && (
+                                <div className="border-l-2 border-[#c2703e] pl-3 mt-2">
+                                  <p className="text-xs text-white/60">{check.impact_note}</p>
+                                  {check.solution_hint && (
+                                    <p className="text-xs text-white/40 italic mt-1">
+                                      How we'd fix it: {check.solution_hint}
+                                    </p>
+                                  )}
+                                </div>
+                              )}
                             </div>
                           </div>
                         ))}
@@ -162,27 +166,35 @@ export default function Results() {
                 ))}
               </div>
 
-              {/* Actions sidebar */}
+              {/* What's Hurting You Most sidebar */}
               <div className="space-y-4">
                 <div className="bg-white/5 border border-white/10 rounded-xl p-5">
-                  <h2 className="font-bold mb-4 font-serif">Priority Actions</h2>
+                  <h2 className="font-bold mb-4 font-serif">What's Hurting You Most</h2>
                   <div className="space-y-3">
-                    {actions.slice(0, 5).map((action, i) => (
-                      <div key={i} className="flex items-start gap-2">
-                        <span className={`text-xs font-bold px-2 py-0.5 rounded ${PRIORITY_BG[action.priority]}`}>
-                          {action.priority}
-                        </span>
-                        <p className="text-sm text-white/70">{action.action}</p>
-                      </div>
-                    ))}
+                    {Object.values(sections)
+                      .flat()
+                      .filter(c => (c.status === 'warn' || c.status === 'fail') && c.impact_note)
+                      .sort((a, b) => (a.status === 'fail' ? -1 : 1) - (b.status === 'fail' ? -1 : 1))
+                      .slice(0, 6)
+                      .map(check => (
+                        <div key={check.id} className="flex items-start gap-2.5">
+                          <span className={`mt-1.5 shrink-0 w-2 h-2 rounded-full ${check.status === 'fail' ? 'bg-red-400' : 'bg-amber-400'}`} />
+                          <div>
+                            <p className="text-sm font-medium">{check.label}</p>
+                            <p className="text-xs text-white/60 mt-0.5">
+                              {check.impact_note.length > 80 ? check.impact_note.slice(0, 80).trim() + '...' : check.impact_note}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
                   </div>
                 </div>
 
                 {/* CTA - sales closer */}
                 <div className="bg-[#c2703e]/20 border border-[#c2703e]/30 rounded-xl p-5 text-center">
-                  <h3 className="font-bold mb-2 font-serif">Want us to fix this?</h3>
+                  <h3 className="font-bold mb-2 font-serif">Every fix above, handled for you.</h3>
                   <p className="text-sm text-white/60 mb-4">
-                    Mind<span className="text-[#c2703e]">Vault</span> handles your entire AI presence. From schema to content to monitoring.
+                    Mind<span className="text-[#c2703e]">Vault</span> builds AI-ready presence for service businesses. Schema, content, citations, monitoring. All done in 2 weeks.
                   </p>
                   <a
                     href="https://mindvaultstudio.net"
@@ -190,9 +202,12 @@ export default function Results() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 bg-[#c2703e] hover:bg-[#a85a2a] text-white font-semibold px-5 py-2.5 rounded-xl transition-colors"
                   >
-                    Book a Free Call
+                    Book Your Free Strategy Call
                     <ArrowRight className="w-4 h-4" />
                   </a>
+                  <p className="text-xs text-white/40 mt-3">
+                    Free consultation. No commitment. Results in 14 days or your money back.
+                  </p>
                 </div>
               </div>
             </div>

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Radar, ArrowRight, Shield, Bot, Zap } from 'lucide-react'
+import { Radar, ArrowRight, Shield, Bot, Zap, Search } from 'lucide-react'
 import { type AuditRequest, TRADES, US_STATES } from '../types'
 
 export default function Landing() {
@@ -49,7 +49,13 @@ export default function Landing() {
             <Radar className="w-7 h-7 text-[#c2703e]" />
             <span className="font-bold text-lg">Mind<span className="text-[#c2703e]">Vault</span> Radar</span>
           </div>
-          <span className="text-xs text-white/40 ml-auto">by Mind<span className="text-[#c2703e]">Vault</span> Studio</span>
+          <div className="ml-auto flex items-center gap-4">
+            <a href="https://scan.mindvaultstudio.net" className="flex items-center gap-1.5 text-sm text-white/50 hover:text-[#c2703e] transition-colors">
+              <Search className="w-4 h-4" />
+              SEO Scan
+            </a>
+            <span className="text-xs text-white/40">by Mind<span className="text-[#c2703e]">Vault</span> Studio</span>
+          </div>
         </div>
       </header>
 
@@ -137,6 +143,20 @@ export default function Landing() {
 
           <p className="text-center text-white/30 text-xs">No signup required. Results in ~30 seconds.</p>
         </form>
+
+        {/* Cross-promo: Try SEO Scan */}
+        <a href="https://scan.mindvaultstudio.net" className="mt-10 flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl px-6 py-5 hover:border-[#c2703e]/40 transition-colors group">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-[#c2703e]/20 flex items-center justify-center">
+              <Search className="w-6 h-6 text-[#c2703e]" />
+            </div>
+            <div>
+              <p className="font-semibold text-sm">Also check your traditional SEO</p>
+              <p className="text-xs text-white/50">Google rankings, page speed, local SEO, backlinks. Free 30-second scan.</p>
+            </div>
+          </div>
+          <ArrowRight className="w-5 h-5 text-white/30 group-hover:text-[#c2703e] transition-colors" />
+        </a>
 
         {/* Trust signals */}
         <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6">

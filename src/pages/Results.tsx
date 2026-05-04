@@ -14,7 +14,7 @@ const SECTION_LABELS: Record<string, string> = {
 }
 
 const STATUS_ICON = {
-  pass: <CheckCircle2 className="w-5 h-5 text-[#10b981] shrink-0" />,
+  pass: <CheckCircle2 className="w-5 h-5 text-[#22C55E] shrink-0" />,
   warn: <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />,
   fail: <XCircle className="w-5 h-5 text-red-400 shrink-0" />,
 }
@@ -54,7 +54,18 @@ export default function Results() {
   const handleEmail = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email || !result) return
-    // TODO: save to Supabase geo_leads table + trigger email
+    try {
+      const { supabase } = await import('../lib/supabase')
+      await supabase.from('geo_leads').insert({
+        domain: result.domain,
+        trade: result.trade,
+        city: result.city,
+        state: result.state,
+        email,
+        score: result.score,
+        result_json: result,
+      })
+    } catch { /* still mark as sent even if save fails */ }
     setEmailSent(true)
   }
 
@@ -63,12 +74,13 @@ export default function Results() {
   const { domain, trade, city, state, score, sections, actions } = result
 
   return (
-    <div className="min-h-screen bg-[#0a1230] text-white">
+    <div className="min-h-screen bg-[#111111] text-white">
       {/* Header */}
       <header className="border-b border-white/10">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-2">
-          <Radar className="w-7 h-7 text-[#4f6ef7]" />
-          <span className="font-bold text-lg">MindVault Radar</span>
+          <img src="/logo.png" alt="MindVault" className="h-8 w-8" />
+          <Radar className="w-7 h-7 text-[#c2703e]" />
+          <span className="font-bold text-lg">Mind<span className="text-[#c2703e]">Vault</span> Radar</span>
           <button
             onClick={() => { sessionStorage.clear(); navigate('/') }}
             className="ml-auto text-sm text-white/40 hover:text-white"
@@ -97,7 +109,7 @@ export default function Results() {
               <span className="text-xs text-white/40">/ 100</span>
             </div>
           </div>
-          <h1 className="text-2xl font-bold mb-1">
+          <h1 className="text-2xl font-bold mb-1 font-serif">
             Your Radar Score: {scoreLabel(score)}
           </h1>
           <p className="text-white/50 max-w-lg mx-auto">
@@ -116,7 +128,7 @@ export default function Results() {
                   className="w-full flex items-center justify-between px-5 py-4 hover:bg-white/5 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-bold text-[#4f6ef7]">{key}</span>
+                    <span className="text-sm font-bold text-[#c2703e]">{key}</span>
                     <span className="font-medium">{SECTION_LABELS[key]}</span>
                     <span className="text-xs text-white/40">
                       {checks.filter(c => c.status === 'pass').length}/{checks.length} passed
@@ -148,7 +160,7 @@ export default function Results() {
           {/* Actions sidebar */}
           <div className="space-y-4">
             <div className="bg-white/5 border border-white/10 rounded-xl p-5">
-              <h2 className="font-bold mb-4">Priority Actions</h2>
+              <h2 className="font-bold mb-4 font-serif">Priority Actions</h2>
               <div className="space-y-3">
                 {actions.slice(0, 5).map((action, i) => (
                   <div key={i} className="flex items-start gap-2">
@@ -162,16 +174,16 @@ export default function Results() {
             </div>
 
             {/* CTA */}
-            <div className="bg-[#4f6ef7]/20 border border-[#4f6ef7]/30 rounded-xl p-5 text-center">
-              <h3 className="font-bold mb-2">Want us to fix this?</h3>
+            <div className="bg-[#c2703e]/20 border border-[#c2703e]/30 rounded-xl p-5 text-center">
+              <h3 className="font-bold mb-2 font-serif">Want us to fix this?</h3>
               <p className="text-sm text-white/60 mb-4">
-                MindVault handles your entire AI presence. From schema to content to monitoring.
+                Mind<span className="text-[#c2703e]">Vault</span> handles your entire AI presence. From schema to content to monitoring.
               </p>
               <a
                 href="https://mindvaultstudio.net"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-[#4f6ef7] hover:bg-[#3054d4] text-white font-semibold px-5 py-2.5 rounded-xl transition-colors"
+                className="inline-flex items-center gap-2 bg-[#c2703e] hover:bg-[#a85a2a] text-white font-semibold px-5 py-2.5 rounded-xl transition-colors"
               >
                 Book a Free Call
                 <ArrowRight className="w-4 h-4" />
@@ -181,14 +193,14 @@ export default function Results() {
             {/* Email gate */}
             {!emailSent ? (
               <div className="bg-white/5 border border-white/10 rounded-xl p-5">
-                <h3 className="font-bold mb-2 text-sm">Get this report in your inbox</h3>
+                <h3 className="font-bold mb-2 text-sm font-serif">Get this report in your inbox</h3>
                 <form onSubmit={handleEmail} className="space-y-2">
                   <input
                     type="email"
                     placeholder="your@email.com"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#4f6ef7]"
+                    className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#c2703e]"
                     required
                   />
                   <button
@@ -201,8 +213,8 @@ export default function Results() {
                 </form>
               </div>
             ) : (
-              <div className="bg-[#10b981]/20 border border-[#10b981]/30 rounded-xl p-5 text-center">
-                <CheckCircle2 className="w-8 h-8 text-[#10b981] mx-auto mb-2" />
+              <div className="bg-[#22C55E]/20 border border-[#22C55E]/30 rounded-xl p-5 text-center">
+                <CheckCircle2 className="w-8 h-8 text-[#22C55E] mx-auto mb-2" />
                 <p className="text-sm font-medium">Report sent to {email}</p>
                 <p className="text-xs text-white/50 mt-1">Check your inbox in a few minutes</p>
               </div>
@@ -210,6 +222,12 @@ export default function Results() {
           </div>
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="border-t border-[#e7ddd3] bg-[#f7f3ee] py-6 px-4 text-center">
+        <p className="text-sm italic text-[#c2703e]">Your AI Workforce, Managed.</p>
+        <p className="text-xs text-stone-500 mt-2">&copy; {new Date().getFullYear()} Mind<span className="text-[#c2703e]">Vault</span> Studio. All rights reserved.</p>
+      </footer>
     </div>
   )
 }

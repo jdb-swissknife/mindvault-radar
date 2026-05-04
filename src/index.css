@@ -1,19 +1,22 @@
 @import "tailwindcss";
 
 @theme {
-  --color-navy-50: #eef1ff;
-  --color-navy-100: #d9e0ff;
-  --color-navy-200: #b3c1ff;
-  --color-navy-300: #8da2ff;
-  --color-navy-400: #6783ff;
-  --color-navy-500: #4f6ef7;
-  --color-navy-600: #3054d4;
-  --color-navy-700: #2440a8;
-  --color-navy-800: #1a2a6c;
-  --color-navy-900: #111d4d;
-  --color-navy-950: #0a1230;
-  --color-mint-500: #10b981;
-  --color-mint-600: #059669;
+  --color-sand-100: #f7f3ee;
+  --color-sand-200: #ede6db;
+  --color-sand-300: #e7ddd3;
+  --color-charcoal: #111111;
+  --color-charcoal-800: #1c1c1c;
+  --color-rust-500: #c2703e;
+  --color-rust-600: #a85a2a;
+  --color-rust-700: #8f4a22;
+  --color-rust-100: #fdf2ec;
+  --color-stone-400: #a8a29e;
+  --color-stone-500: #78716c;
+  --color-stone-600: #57534e;
+  --color-stone-700: #44403c;
+  --color-success: #22C55E;
+  --color-text-muted: #94A3B8;
+  --color-text-primary: #1E293B;
 }
 
 html, body, #root {
@@ -24,6 +27,12 @@ html, body, #root {
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+  background-color: var(--color-sand-100);
+  color: var(--color-stone-700);
+}
+
+h1, h2, h3 {
+  font-family: Georgia, serif;
 }
 
 /* Star rating */

@@ -65,12 +65,13 @@ export default function Scanning() {
   const progress = Math.min(((currentStep + 1) / AUDIT_STEPS.length) * 100, 95)
 
   return (
-    <div className="min-h-screen bg-[#0a1230] text-white flex flex-col">
+    <div className="min-h-screen bg-[#111111] text-white flex flex-col">
       {/* Header */}
       <header className="border-b border-white/10">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-2">
-          <Radar className="w-7 h-7 text-[#4f6ef7]" />
-          <span className="font-bold text-lg">MindVault Radar</span>
+          <img src="/logo.png" alt="MindVault" className="h-8 w-8" />
+          <Radar className="w-7 h-7 text-[#c2703e]" />
+          <span className="font-bold text-lg">Mind<span className="text-[#c2703e]">Vault</span> Radar</span>
         </div>
       </header>
 
@@ -78,16 +79,16 @@ export default function Scanning() {
         <div className="max-w-lg w-full text-center">
           {/* Radar animation */}
           <div className="relative w-32 h-32 mx-auto mb-8">
-            <div className="absolute inset-0 rounded-full border-2 border-[#4f6ef7]/30" />
-            <div className="absolute inset-3 rounded-full border-2 border-[#4f6ef7]/50" />
-            <div className="absolute inset-6 rounded-full border-2 border-[#4f6ef7]/70" />
-            <div className="absolute inset-0 rounded-full bg-[#4f6ef7]/10 animate-ping" style={{ animationDuration: '2s' }} />
-            <div className="absolute inset-12 rounded-full bg-[#4f6ef7] flex items-center justify-center">
+            <div className="absolute inset-0 rounded-full border-2 border-[#c2703e]/30" />
+            <div className="absolute inset-3 rounded-full border-2 border-[#c2703e]/50" />
+            <div className="absolute inset-6 rounded-full border-2 border-[#c2703e]/70" />
+            <div className="absolute inset-0 rounded-full bg-[#c2703e]/10 animate-ping" style={{ animationDuration: '2s' }} />
+            <div className="absolute inset-12 rounded-full bg-[#c2703e] flex items-center justify-center">
               <Radar className="w-6 h-6 text-white" />
             </div>
           </div>
 
-          <h2 className="text-2xl font-bold mb-2">
+          <h2 className="text-2xl font-bold mb-2 font-serif">
             Scanning {request?.domain || 'your site'}...
           </h2>
           <p className="text-white/50 mb-8">
@@ -97,7 +98,7 @@ export default function Scanning() {
           {/* Progress bar */}
           <div className="w-full bg-white/10 rounded-full h-2 mb-6">
             <div
-              className="bg-[#4f6ef7] h-2 rounded-full transition-all duration-1000 ease-out"
+              className="bg-[#c2703e] h-2 rounded-full transition-all duration-1000 ease-out"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -116,9 +117,9 @@ export default function Scanning() {
                   }`}
                 >
                   {isDone ? (
-                    <CheckCircle2 className="w-5 h-5 text-[#10b981] shrink-0" />
+                    <CheckCircle2 className="w-5 h-5 text-[#22C55E] shrink-0" />
                   ) : (
-                    <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-[#4f6ef7] animate-pulse' : 'text-white/40'}`} />
+                    <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-[#c2703e] animate-pulse' : 'text-white/40'}`} />
                   )}
                   <span className={`text-sm ${isActive ? 'text-white font-medium' : isDone ? 'text-white/60' : 'text-white/40'}`}>
                     {step.label}
@@ -141,6 +142,12 @@ export default function Scanning() {
           )}
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="border-t border-[#e7ddd3] bg-[#f7f3ee] py-6 px-4 text-center">
+        <p className="text-sm italic text-[#c2703e]">Your AI Workforce, Managed.</p>
+        <p className="text-xs text-stone-500 mt-2">&copy; {new Date().getFullYear()} Mind<span className="text-[#c2703e]">Vault</span> Studio. All rights reserved.</p>
+      </footer>
     </div>
   )
 }
